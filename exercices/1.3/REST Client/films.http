@@ -1,0 +1,21 @@
+### Read all films
+GET http://localhost:3000/films
+
+###
+GET http://localhost:3000/films?minimum-duration=120
+
+###
+GET http://localhost:3000/films/2
+
+###
+POST http://localhost:3000/films
+Content-Type: application/json
+
+{
+  "title": "Inception",
+  "director": "Christopher Nolan",
+  "duration": 148,
+  "budget": 160,
+  "description": "Un thriller de science-fiction sur les rêves et la manipulation de l’esprit.",
+  "imageUrl": "https://m.media-amazon.com/images/I/51zUbui+gbL._AC_.jpg"
+}
