@@ -92,23 +92,15 @@ const id = req.params.id;
 
 
 router.post("/",(_req, res) => {
-  const body = _req.body as Film;
+  const film = _req.body as Film;
 
-  if (body) {
-    const newFilm: Film = {
-      id: defaultFilms.length + 1,
-      title: body.title,
-      director: body.director,
-      duration: body.duration,
-      imageUrl: body.imageUrl,
-      description: body.description,
-      budget: body.budget,
-    };
-    defaultFilms.push(newFilm);
-    return res.status(201).json(newFilm);
+  if (!film.title || !film.director || !film.duration ||  !film.imageUrl || !film.description) {
+    film.id = defaultFilms.length + 1;
+    defaultFilms.push(film);
+      return res.status(400).json({ error: "Invalid film data" });
   }
 
-  return res.status(400).json({ error: "Invalid film data" });
+  return res.status(201).json(film);
 });
 
 
