@@ -1,12 +1,15 @@
 import { Router } from "express";
 import path from "node:path";
+
 import { Film, NewFilm } from "../types";
-import { parse, serialize } from "../utils/json";
+
 import { containsOnlyExpectedKeys } from "../utils/validate";
-import { json } from "node:stream/consumers";
-const jsonDbPath = path.join(__dirname, "/../data/drinks.json");
+
+import { serialize, parse } from "../utils/json";
 
 const router = Router();
+
+const jsonDbPath = path.join(__dirname, "/../data/films.json");
 
 const defaultFilms: Film[] = [
   {
@@ -83,12 +86,12 @@ router.get("/", (req, res) => {
   }
 
   const minDuration = Number(req.query["minimum-duration"]);
-  const filteredFilms = films.filter((film) => film.duration >= minDuration);
 
   if (isNaN(minDuration) || minDuration <= 0) {
     return res.sendStatus(400);
   }
 
+  const filteredFilms = films.filter((film) => film.duration >= minDuration);
 
   return res.send(filteredFilms);
 });
@@ -100,9 +103,11 @@ router.get("/:id", (req, res) => {
   if (isNaN(id)) {
     return res.sendStatus(400);
   }
+
   const films = parse(jsonDbPath, defaultFilms);
+
   const film = films.find((film) => film.id === id);
-  
+
   if (film === undefined) {
     return res.sendStatus(404);
   }
@@ -144,7 +149,9 @@ router.post("/", (req, res) => {
 
   const newFilm = body as NewFilm;
 
-  const existingFilm = defaultFilms.find(
+  const films = parse(jsonDbPath, defaultFilms);
+
+  const existingFilm = films.find(
     (film) =>
       film.title.toLowerCase() === newFilm.title.toLowerCase() &&
       film.director.toLowerCase() === newFilm.director.toLowerCase()
@@ -155,11 +162,13 @@ router.post("/", (req, res) => {
   }
 
   const nextId =
-    defaultFilms.reduce((acc, film) => (film.id > acc ? film.id : acc), 0) + 1;
+    films.reduce((acc, film) => (film.id > acc ? film.id : acc), 0) + 1;
 
   const addedFilm: Film = { id: nextId, ...newFilm };
 
-  defaultFilms.push(addedFilm);
+  films.push(addedFilm);
+
+  serialize(jsonDbPath, films);
 
   return res.json(addedFilm);
 });
@@ -172,15 +181,19 @@ router.delete("/:id", (req, res) => {
     return res.sendStatus(400);
   }
 
-  const index = defaultFilms.findIndex((film) => film.id === id);
+  const films = parse(jsonDbPath, defaultFilms);
+
+  const index = films.findIndex((film) => film.id === id);
 
   if (index === -1) {
     return res.sendStatus(404);
   }
 
-  const deletedFilm = defaultFilms[index];
+  const deletedFilm = films[index];
 
-  defaultFilms.splice(index, 1);
+  films.splice(index, 1);
+
+  serialize(jsonDbPath, films);
 
   return res.send(deletedFilm);
 });
@@ -193,9 +206,11 @@ router.patch("/:id", (req, res) => {
     return res.sendStatus(400);
   }
 
-  const filmToUpdate = defaultFilms.find((film) => film.id === id);
+  const films = parse(jsonDbPath, defaultFilms);
 
-  if (filmToUpdate === undefined) {
+  const indexOfFilmToUpdate = films.findIndex((film) => film.id === id);
+
+  if (indexOfFilmToUpdate < 0) {
     return res.sendStatus(404);
   }
 
@@ -227,9 +242,11 @@ router.patch("/:id", (req, res) => {
   }
   // End of challenge
 
-  const updatedFilm = { ...filmToUpdate, ...body };
+  const updatedFilm = { ...films[indexOfFilmToUpdate], ...body };
 
-  defaultFilms[defaultFilms.indexOf(filmToUpdate)] = updatedFilm;
+  films[indexOfFilmToUpdate] = updatedFilm;
+
+  serialize(jsonDbPath, films);
 
   return res.send(updatedFilm);
 });
@@ -271,13 +288,15 @@ router.put("/:id", (req, res) => {
     return res.sendStatus(400);
   }
 
-  const indexOfFilmToUpdate = defaultFilms.findIndex((film) => film.id === id);
+  const films = parse(jsonDbPath, defaultFilms);
+
+  const indexOfFilmToUpdate = films.findIndex((film) => film.id === id);
   // Deal with the film creation if it does not exist
   if (indexOfFilmToUpdate < 0) {
     const newFilm = body as NewFilm;
 
     // Challenge of ex1.6 : To be complete, check that the film does not already exist
-    const existingFilm = defaultFilms.find(
+    const existingFilm = films.find(
       (film) =>
         film.title.toLowerCase() === newFilm.title.toLowerCase() &&
         film.director.toLowerCase() === newFilm.director.toLowerCase()
@@ -289,19 +308,23 @@ router.put("/:id", (req, res) => {
     // End of challenge
 
     const nextId =
-      defaultFilms.reduce((acc, film) => (film.id > acc ? film.id : acc), 0) + 1;
+      films.reduce((acc, film) => (film.id > acc ? film.id : acc), 0) + 1;
 
     const addedFilm = { id: nextId, ...newFilm };
 
-    defaultFilms.push(addedFilm);
+    films.push(addedFilm);
+
+    serialize(jsonDbPath, films);
 
     return res.json(addedFilm);
   }
 
   // Update the film
-  const updatedFilm = { ...defaultFilms[indexOfFilmToUpdate], ...body } as Film;
+  const updatedFilm = { ...films[indexOfFilmToUpdate], ...body } as Film;
 
-  defaultFilms[indexOfFilmToUpdate] = updatedFilm;
+  films[indexOfFilmToUpdate] = updatedFilm;
+
+  serialize(jsonDbPath, films);
 
   return res.send(updatedFilm);
 });
