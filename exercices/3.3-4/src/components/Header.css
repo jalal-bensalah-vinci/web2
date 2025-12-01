@@ -1,0 +1,34 @@
+.header {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 10px;
+
+  display: flex;
+  justify-content: start;
+}
+
+.logo {
+  padding: 10px;
+  height: 50px;
+}
+
+.header-light {
+  background-color: #f5f5f5;
+  color: #222;
+}
+
+.header-dark {
+  background-color: #222;
+  color: #fff;
+}
+
+.footer-light {
+  background-color: #e0e0e0;
+  color: #222;
+}
+
+.footer-dark {
+  background-color: #111;
+  color: #fff;
+}
