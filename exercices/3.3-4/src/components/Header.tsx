@@ -1,20 +1,21 @@
-type HeaderProps = {
-  urlLogo: string;
-  theme: string;
-  toggleTheme: () => void;
-  children: React.ReactNode;
-};
+import "./Header.css";
 
-function Header({ urlLogo, theme, toggleTheme, children }: HeaderProps) {
-  return (
-    <header className={theme === "light" ? "header-light" : "header-dark"}>
-      <img src={urlLogo} alt="logo" />
-      <button onClick={toggleTheme}>
-        {theme === "light" ? "🌙 Mode sombre" : "☀️ Mode clair"}
-      </button>
-      {children}
-    </header>
-  );
+interface HeaderProps {
+  urlLogo: string;
+  children: React.ReactNode;
+  theme: "light" | "dark";
 }
+
+const Header = ({urlLogo, children, theme}: HeaderProps) => {
+  return (
+    <footer className="header" style={{
+      backgroundColor: theme === "dark" ? "black" : "white",
+      color: theme === "dark" ? "white" : "black",
+    }}>
+      <img src={urlLogo} alt="logo" className="logo" />
+      <div>{children}</div>
+    </footer>
+  );
+};
 
 export default Header;

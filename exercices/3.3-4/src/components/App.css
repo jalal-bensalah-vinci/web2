@@ -4,23 +4,3 @@
   padding: 1rem;
   
 }
-
-.header-light {
-  background-color: #f5f5f5;
-  color: #222;
-}
-
-.header-dark {
-  background-color: #222;
-  color: #fff;
-}
-
-.footer-light {
-  background-color: #e0e0e0;
-  color: #222;
-}
-
-.footer-dark {
-  background-color: #111;
-  color: #fff;
-}

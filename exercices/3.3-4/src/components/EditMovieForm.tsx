@@ -1,29 +1,38 @@
 import { SyntheticEvent, useState } from "react";
-import { NewMovie } from "../types";
+import { Movie } from "../types";
 import "./MovieForm.css";
 
-interface AddMovieFormProps {
-  onMovieAdded: (movie: NewMovie) => void;
+interface EditMovieFormProps {
+  movie: Movie;
+  onMovieEdited: (movie: Movie) => void;
 }
 
-const AddMovieForm = ({ onMovieAdded }: AddMovieFormProps) => {
-  const [title, setTitle] = useState("");
-  const [director, setDirector] = useState("");
-  const [duration, setDuration] = useState<number | undefined>(undefined);
-  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
-  const [description, setDescription] = useState<string | undefined>(undefined);
-  const [budget, setBudget] = useState<number | undefined>(undefined);
+const EditMovieForm = ({ movie, onMovieEdited }: EditMovieFormProps) => {
+  const [title, setTitle] = useState(movie.title);
+  const [director, setDirector] = useState(movie.director);
+  const [duration, setDuration] = useState<number | undefined>(
+    movie.duration ? movie.duration : undefined
+  );
+  const [imageUrl, setImageUrl] = useState<string | undefined>(movie.imageUrl);
+  const [description, setDescription] = useState<string | undefined>(
+    movie.description
+  );
+  const [budget, setBudget] = useState<number | undefined>(
+    movie.budget ? movie.budget : undefined
+  );
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-    onMovieAdded({
+    console.log("Edit movie, budget:", budget);
+    onMovieEdited({
+      id: movie.id,
       title,
       director,
-      duration: duration ?? 0,
-      imageUrl,
-      description,
-      budget,
-    });
+      duration,
+      imageUrl : imageUrl === "" ? undefined : imageUrl,
+      description : description === "" ? undefined : description,
+      budget : budget !== undefined && isNaN(budget) ? undefined : budget,
+    } as Movie);
   };
   return (
     <form onSubmit={handleSubmit}>
@@ -77,9 +86,9 @@ const AddMovieForm = ({ onMovieAdded }: AddMovieFormProps) => {
           onChange={(e) => setBudget(parseInt(e.target.value))}
         />
       </div>
-      <button type="submit">Ajouter</button>
+      <button type="submit">Éditer</button>
     </form>
   );
 };
 
-export default AddMovieForm;
+export default EditMovieForm;

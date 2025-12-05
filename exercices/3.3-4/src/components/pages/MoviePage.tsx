@@ -3,7 +3,12 @@ import { MovieContext } from "../../types";
 import MovieCard from "../MovieCard";
 
 const MoviePage = () => {
-  const { movies, onMovieDeleted }: MovieContext = useOutletContext();
+  const {
+    movies,
+    onMovieDeleted,
+    authenticatedUser,
+    handleEditMovieRequest,
+  }: MovieContext = useOutletContext();
 
   const match = useMatch("/movies/:id");
   const movieId = Number(match?.params.id);
@@ -13,7 +18,13 @@ const MoviePage = () => {
 
   if (!movieFound) return <p>Movie not found</p>;
 
-  return <MovieCard movie={movieFound} onMovieDeleted={onMovieDeleted} />;
+  return (
+    <MovieCard
+      movie={movieFound}
+      onMovieDeleted={authenticatedUser && onMovieDeleted}
+      handleEditMovieRequest={authenticatedUser && handleEditMovieRequest}
+    />
+  );
 };
 
 export default MoviePage;
